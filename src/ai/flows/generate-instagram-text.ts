@@ -34,7 +34,7 @@ const generateInstagramTextFlow = ai.defineFlow(
     inputSchema: GenerateInstagramTextInputSchema,
     outputSchema: GenerateInstagramTextOutputSchema,
   },
-  async input => {
+  async (input) => {
     const {text} = await generateInstagramTextPrompt(input);
     return text!;
   }
