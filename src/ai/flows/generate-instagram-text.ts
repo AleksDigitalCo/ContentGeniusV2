@@ -35,6 +35,10 @@ const generateInstagramTextFlow = ai.defineFlow(
     outputSchema: GenerateInstagramTextOutputSchema,
   },
   async (input) => {
+    if (!input) {
+      // Should not happen due to schema validation, but as a safeguard.
+      return 'Please provide a description to generate Instagram text.';
+    }
     const {text} = await generateInstagramTextPrompt(input);
     return text!;
   }
