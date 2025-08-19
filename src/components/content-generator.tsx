@@ -1,5 +1,7 @@
 'use client';
 
+// Koda kommentarer är på engelska, medan UI-elementen är på svenska för att matcha den befintliga koden.
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +17,10 @@ import { Loader2, Wand2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from './ui/separator';
 
+/**
+ * Zod schema for form validation.
+ * Ensures the prompt is a string with a minimum length of 10 characters.
+ */
 const formSchema = z.object({
   prompt: z.string().min(10, {
     message: 'Prompten måste vara minst 10 tecken lång.',
@@ -33,10 +39,17 @@ export function ContentGenerator() {
     },
   });
 
+  /**
+   * Handles form submission. This function is called by react-hook-form
+   * after the prompt has been validated against `formSchema`.
+   */
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedText('');
+
     try {
+      // The `values` object is guaranteed by react-hook-form to contain a
+      // valid `prompt` string that meets the schema requirements.
       const result = await generateInstagramText(values.prompt);
       setGeneratedText(result);
     } catch (error) {
@@ -99,11 +112,11 @@ export function ContentGenerator() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-               <div className="space-y-2">
+                <div className="space-y-2">
                   <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
                   <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
                   <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-               </div>
+                </div>
             ) : (
             <ScrollArea className="h-auto max-h-96 w-full rounded-md bg-muted/50 p-4">
               <p className="whitespace-pre-wrap font-code text-sm">{generatedText}</p>

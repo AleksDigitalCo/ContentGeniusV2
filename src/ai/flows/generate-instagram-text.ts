@@ -1,31 +1,34 @@
 'use server';
 
 /**
- * @fileOverview This file defines the generateInstagramText flow, which takes a text prompt as input and returns AI-generated marketing copy optimized for Instagram.
+ * @fileOverview Denna fil definierar generateInstagramText-flödet, som tar en textprompt som input och returnerar AI-genererad marknadsföringstext optimerad för Instagram.
  *
- * - generateInstagramText - An async function that takes a prompt and returns Instagram-ready marketing copy.
- * - GenerateInstagramTextInput - The input type for the generateInstagramText function (a string prompt).
- * - GenerateInstagramTextOutput - The return type for the generateInstagramText function (a string of marketing copy).
+ * - generateInstagramText - En asynkron funktion som tar en prompt och returnerar Instagram-klar marknadsföringstext.
+ * - GenerateInstagramTextInput - Input-typen för generateInstagramText-funktionen (en strängprompt).
+ * - GenerateInstagramTextOutput - Returtypen för generateInstagramText-funktionen (en sträng med marknadsföringstext).
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GenerateInstagramTextInputSchema = z.string().describe('A text prompt describing a product or service.');
+const GenerateInstagramTextInputSchema = z.string().describe('En textprompt som beskriver en produkt eller tjänst.');
 export type GenerateInstagramTextInput = z.infer<typeof GenerateInstagramTextInputSchema>;
 
-const GenerateInstagramTextOutputSchema = z.string().describe('AI-generated marketing copy optimized for Instagram, including relevant emojis and hashtags.');
+const GenerateInstagramTextOutputSchema = z.string().describe('AI-genererad marknadsföringstext optimerad för Instagram, inklusive relevanta emojis och hashtags.');
 export type GenerateInstagramTextOutput = z.infer<typeof GenerateInstagramTextOutputSchema>;
 
 export async function generateInstagramText(prompt: GenerateInstagramTextInput): Promise<GenerateInstagramTextOutput> {
-  return generateInstagramTextFlow(prompt);
+  // Här lägger vi till en robust kontroll för att säkerställa att prompten
+  // inte är null, undefined eller en tom sträng innan vi anropar flödet.
+  const validatedPrompt = prompt || 'En produkt eller tjänst.';
+  return generateInstagramTextFlow(validatedPrompt);
 }
 
 const generateInstagramTextPrompt = ai.definePrompt({
   name: 'generateInstagramTextPrompt',
   input: {schema: GenerateInstagramTextInputSchema},
   output: {schema: GenerateInstagramTextOutputSchema},
-  prompt: `You are a highly specialized AI for marketing copy. Your task is to transform a raw description into an engaging, short text perfect for Instagram. Include relevant emojis and hashtags. The tone should be enthusiastic and professional.\n\nDescription: {{{input}}}`,
+  prompt: `Du är en högt specialiserad AI för marknadsföringstext. Din uppgift är att omvandla en rå beskrivning till en engagerande, kort text perfekt för Instagram. Inkludera relevanta emojis och hashtags. Tonen ska vara entusiastisk och professionell.\n\nDescription: {{{input}}}`,
 });
 
 const generateInstagramTextFlow = ai.defineFlow(
@@ -34,11 +37,7 @@ const generateInstagramTextFlow = ai.defineFlow(
     inputSchema: GenerateInstagramTextInputSchema,
     outputSchema: GenerateInstagramTextOutputSchema,
   },
-  async (input) => {
-    if (!input) {
-      // Should not happen due to schema validation, but as a safeguard.
-      return 'Please provide a description to generate Instagram text.';
-    }
+  async input => {
     const {text} = await generateInstagramTextPrompt(input);
     return text!;
   }
